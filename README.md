@@ -5,6 +5,6 @@ This is my implementation of compilled programming langague:
 ---
 ### To-Do:
 
-[ ] Lexer
-[ ] Parser
+- [ ] Lexer
+- [ ] Parser
 
