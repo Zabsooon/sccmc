@@ -1,7 +1,8 @@
+#include "scanner.h"
+#include "token.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-char **read_file(char *file_name);
 char *get_source_buffer(FILE *source_file, long long *source_buffer_size);
 long long get_source_size(FILE *source_file);
 
@@ -24,7 +25,10 @@ int main(int argc, char *argv[]) {
 
   source_file_buffer = get_source_buffer(source_file, &source_file_size);
 
-  printf("%s", source_file_buffer);
+  /* Lexer */
+  Scanner scanner;
+  init_scanner(&scanner, source_file_buffer);
+  tokenize(&scanner);
 
   return 0;
 }
