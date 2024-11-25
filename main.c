@@ -1,5 +1,4 @@
 #include "scanner.h"
-#include "token.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,8 +27,10 @@ int main(int argc, char *argv[]) {
   /* Lexer */
   Scanner scanner;
   init_scanner(&scanner, source_file_buffer);
-  tokenize(&scanner);
-
+  while(*scanner.current != '\0') {
+    printf("%i", tokenize(&scanner).type);
+    break;
+  }
   return 0;
 }
 

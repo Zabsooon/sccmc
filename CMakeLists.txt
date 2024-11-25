@@ -26,7 +26,6 @@ set(SOURCES
 )
 
 set(HEADERS
-  ./token.h
   ./scanner.h
 )
 

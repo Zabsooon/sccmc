@@ -1,7 +1,15 @@
 #include "scanner.h"
-#include "token.h"
-#include <csignal>
 #include <stdio.h>
+
+Token make_token(TokenType type, Scanner *scanner) {
+  Token token;
+  token.type = type;
+  token.start = scanner->start;
+  token.line = scanner->line;
+  token.length = (int)(scanner->current - scanner->start);
+  return token;
+}
+
 void init_scanner(Scanner *scanner, const char *source) {
   scanner->start = source;
   scanner->current = source;
@@ -44,7 +52,9 @@ Token tokenize(Scanner *scanner) {
   if (is_scanner_at_end(scanner))
     return make_token(TOKEN_EOF, scanner);
 
-  switch (advance_scanner(scanner)) {
+  char scan = advance_scanner(scanner);
+
+  switch (scan) {
   case '#':
     return make_token(TOKEN_HASH, scanner);
   case '(':
@@ -81,23 +91,31 @@ Token tokenize(Scanner *scanner) {
   case '>':
     return match_to_current('=', scanner)
                ? make_token(TOKEN_GREATER_EQUAL, scanner)
-               : (match_to_current('>', scanner)
-                      ? make_token(TOKEN_RIGHT_SHIFT, scanner)
-                      : make_token(TOKEN_GREATER, scanner));
+               : match_to_current('>', scanner)
+                      ? match_to_current('=', scanner)
+                              ? make_token(TOKEN_RIGHT_SHIFT_EQUAL, scanner)
+                              : make_token(TOKEN_RIGHT_SHIFT, scanner)
+                      : make_token(TOKEN_GREATER, scanner);
   case '<':
     return match_to_current('=', scanner)
                ? make_token(TOKEN_LESS_EQUAL, scanner)
-               : (match_to_current('<', scanner)
-                      ? make_token(TOKEN_LEFT_SHIFT, scanner)
-                      : make_token(TOKEN_LESS, scanner));
+               : match_to_current('<', scanner)
+                      ? match_to_current('=', scanner)
+                              ? make_token(TOKEN_LEFT_SHIFT_EQUAL, scanner)
+                              : make_token(TOKEN_LEFT_SHIFT, scanner)
+                      : make_token(TOKEN_LESS, scanner);
   case '&':
     return match_to_current('=', scanner)
                ? make_token(TOKEN_BINARY_AND_EQUAL, scanner)
-               : make_token(TOKEN_BINARY_AND, scanner);
+               : match_to_current('&', scanner)
+                      ? make_token(TOKEN_AND, scanner)
+                      : make_token(TOKEN_BINARY_AND, scanner);
   case '|':
     return match_to_current('=', scanner)
                ? make_token(TOKEN_BINARY_OR_EQUAL, scanner)
-               : make_token(TOKEN_BINARY_OR, scanner);
+               : match_to_current('|', scanner)
+                      ? make_token(TOKEN_OR, scanner)
+                      : make_token(TOKEN_BINARY_OR, scanner);
   case '^':
     return match_to_current('=', scanner) ? make_token(TOKEN_XOR_EQUAL, scanner)
                                           : make_token(TOKEN_XOR, scanner);
